@@ -189,11 +189,13 @@ ZSlurm job class, not a physical Spider partition.
 The pinned ZSlurm release discovers Spider's allocation `$TMPDIR`,
 gives every ZSlurm child a private directory through
 `ZSLURM_SCRATCH_DIR`, rewrites all ordinary temp variables to that directory,
-and cleans only that child directory. Partial pilots advertise at most 100 GiB
-per allocated core, bounded again by actual filesystem free space. Generic
-`TMPDIR` discovery is enabled only in the Spider ZSlurm site file; it is not a
-cross-site pipeline guess. The nonexistent physical `staging` partition and
-its autogrow path are disabled. GPFS RDMA telemetry is disabled for CephFS.
+and cleans only that child directory. Partial pilots advertise 73 GiB per
+allocated core, bounded again by actual filesystem free space; a 30-core pilot
+therefore advertises at most 2,190 GiB. Generic `TMPDIR` discovery is enabled
+only in the Spider ZSlurm site file; it is not a cross-site pipeline guess. The
+nonexistent physical `staging` partition and its autogrow path are disabled.
+Demand-backed compute autogrow is enabled with a cap of 15 running plus queued
+pilots. GPFS RDMA telemetry is disabled for CephFS.
 
 A real Spider `short` allocation confirmed that the pipeline resolves the
 exported child path below the allocation's private `/tmp` XFS bind. A second
@@ -207,8 +209,9 @@ This is not yet a full alignment/calling production certification. The canary
 account could not read the pre-existing resource/software tree under
 `/project/cardseq`, which belongs to another Spider project; CardSeq is not a
 pipeline component. Alignment, DeepVariant, dCache writes, failure/restart and
-Apptainer therefore still require site-owned canaries before enabling autogrow
-or a cohort run.
+Apptainer therefore still require site-owned canaries before allowing the
+configured autogrow limit to scale a cohort run. Disable compute autogrow or
+temporarily cap it at one pilot during those canaries.
 
 Snellius archive sources additionally require its `daget`, `dals` and
 `darelease` commands. On Spider, use a tested dCache/S3 route unless an
@@ -230,8 +233,10 @@ prefixes, executor and normal safety settings. Snellius can use the installer
 with `--profile-template "$PIPELINE/profiles/zslurm/config.yaml"`; its
 established `zslurm2` profile remains valid.
 
-For Spider, use `profiles/spider` only after the scratch work above passes a
-single-pilot canary. Before scaling, verify:
+For Spider, use `profiles/spider` at production scale only after the scratch
+work above passes a single-pilot canary. Temporarily disable compute autogrow
+or cap it at one pilot for that canary; then restore the configured cap of 15.
+Before scaling, verify:
 
 - every selected reference/index and executable resolves below the intended
   project or protected credential root;

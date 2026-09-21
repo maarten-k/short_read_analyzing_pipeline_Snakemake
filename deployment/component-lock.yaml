@@ -1,5 +1,5 @@
 schema_version: 1
-created: 2026-09-17
+created: 2026-09-21
 
 pipeline:
   repository: https://github.com/holstegelab/short_read_analyzing_pipeline_Snakemake.git
@@ -14,7 +14,7 @@ snakemake:
 
 zslurm:
   repository: https://github.com/holstegelab/zslurm.git
-  commit: de0d2f295d411bab0bfd932ad0f7955ebd1cf85f
+  commit: 3b8898798ddb862c0014a5d17cc12a84ac7c9b33
 
 snakemake_executor_plugin_zslurm:
   repository: https://github.com/holstegelab/snakemake-executor-plugin-zslurm.git

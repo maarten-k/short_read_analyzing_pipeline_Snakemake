@@ -32,7 +32,7 @@ reconfigured by the repository merge.
 |---|---|---|
 | Workflow + restart handling | This repository, including `restart_state.py`, `scripts/prepare_restart.py`, runners and delivery templates | Clone the tested revision, including the cleanup/restart commits |
 | Controller/worker Snakemake | Local fork reports `9.13.8.dev16`; existing installations at `83c79c1d` passed the Snellius canary, while the component lock pins `50bd8694` with duplicate-rule validation restored | No; retain the fork's checkpoint-temp, Conda-`run:`, metadata-cleanup and Apptainer-symlink fixes. Stock Snakemake was a compatibility test, not a replacement |
-| ZSlurm manager/chiefs | Separate `holstegelab/zslurm`, release commit `de0d2f2`; own `env.yaml`/installation | No; install into the environment used by manager and pilots; repository merge does not update a running manager process |
+| ZSlurm manager/chiefs | Separate `holstegelab/zslurm`, release commit `3b88987`; own `env.yaml`/installation | No; install into the environment used by manager and pilots; repository merge does not update a running manager process |
 | Native executor | Separate package `snakemake-executor-plugin-zslurm`; release fix commit `9ed793e` transports declared/resolved environment values to shell-free workers | No; install the pinned commit into the Snakemake environment on controller and workers |
 | Controller Python modules | `Snakefile`, `common.py`, `read_stats.py`: pandas, numpy, PyYAML, h5py, Snakemake and its plugins | No; a complete pinned controller environment is not supplied by this pipeline |
 | Rule environments | `envs/*.yaml` and **post-deploy scripts**; environments currently live outside resources under the user's `.snakemake` prefix | No; recreate at the final installation prefix, then smoke-test |
@@ -136,8 +136,10 @@ pilot just because `df` shows it.
 
 The inspected `cluster_manager/config/sites/spider.yaml` and
 `zslurm._cluster_defaults` already provide `normal`, SSD feature `ssd`, a
-30-core/240-GB initial pilot profile, and autogrow disabled. Use this as a
-starting template, **not as measured current capacity**.
+dynamic 2--30-core/8-GB-per-core pilot profile, and demand-backed compute
+autogrow capped at 15 running plus queued pilots. Use this as a starting
+template, **not as measured current capacity**. Temporarily disable autogrow or
+cap it at one pilot during the site-owned production canary.
 
 Implemented in the ZSlurm release:
 
@@ -148,9 +150,9 @@ Implemented in the ZSlurm release:
 3. Every child attempt receives a unique mode-0700 directory via
    `ZSLURM_SCRATCH_DIR`; `TMPDIR`, `TMP`, `TEMP`, and `TEMPDIR` point there and
    controller paths are removed.
-4. Spider partial pilots advertise 100 GiB per allocated core, additionally
+4. Spider partial pilots advertise 73 GiB per allocated core, additionally
    bounded by physical total/free space. A 30-core pilot therefore exposes at
-   most 3,000 GiB, not the whole 12-TiB device.
+   most 2,190 GiB, not the whole physical device.
 5. The nonexistent `staging` partition and staging autogrow are disabled;
    archive sources remain unsupported until a real Spider backend exists.
 6. GPFS RDMA monitoring is disabled in the Spider site configuration.
@@ -253,9 +255,10 @@ active shared checkout.
 
 ### 5. Single-pilot Spider smoke tests, then controlled scale-up
 
-Use a separately named manager instance, autogrow initially off, one deliberately
-sized pilot and a small quota-limited run directory. No Snellius instance name
-or run state should be reused accidentally.
+Use a separately named manager instance, override the supplied autogrow default
+to off or a one-pilot cap, start one deliberately sized pilot and use a small
+quota-limited run directory. No Snellius instance name or run state should be
+reused accidentally.
 
 - Paired FASTQ/BAM/CRAM, one/multiple readgroups, ERF correction, dedup/rescue,
   WGS/WES, male/female (including skipped Y), chrM on/off.
@@ -275,7 +278,8 @@ or run state should be reused accidentally.
 
 Acceptance: successful end-to-end canary + restart, clean scratch, no missing
 outputs or silent sample skips, bounded reservations and correct RPC/lease
-behavior. Only then choose a node cap and enable controlled autogrow.
+behavior. Only then restore the reviewed compute-autogrow cap (15 in the
+supplied Spider ZSlurm configuration).
 
 ## Scope and open verification
 
