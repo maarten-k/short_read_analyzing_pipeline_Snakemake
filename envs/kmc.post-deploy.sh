@@ -3,7 +3,7 @@ set -euo pipefail
 
 : "${CONDA_PREFIX:?CONDA_PREFIX is required by the KMC post-deploy script}"
 
-conda install -y conda-forge:git conda-forge:patch conda-forge:make conda-forge:binutils conda-forge::gxx==13.4.0 conda-forge::gcc==13.4.0
+conda install -y conda-forge::git conda-forge::patch conda-forge::make conda-forge::binutils conda-forge::gxx==13.4.0 conda-forge::gcc==13.4.0
 KMC_COMMIT=751ef36a3c1ccc6dda664f529ad218dc51d76f55
 KMC_BUILD_JOBS=${KMC_BUILD_JOBS:-8}
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-conda install -y conda-forge::unzip conda-forge:wget
+conda install -y conda-forge::unzip conda-forge::wget
 
 mkdir -p ${CONDA_PREFIX}/share
 cd ${CONDA_PREFIX}/share/

@@ -15,7 +15,7 @@ readonly BUILD_JOBS=8
 readonly SYSTEM_CC="${CONDA_PREFIX}/bin/gcc"
 readonly SYSTEM_CXX="${CONDA_PREFIX}/bin/g++"
 
-conda install -y conda-forge:gcc conda-forge:gxx conda-forge:git conda-forge:coreutils  conda-forge:grep conda-forge:make conda-forge::binutils
+conda install -y conda-forge::gcc conda-forge::gxx conda-forge::git conda-forge::coreutils conda-forge::grep conda-forge::make conda-forge::binutils
   
 [[ -x "${SYSTEM_CC}" ]] || { echo "Missing compiler: ${SYSTEM_CC}" >&2; exit 1; }
 [[ -x "${SYSTEM_CXX}" ]] || { echo "Missing compiler: ${SYSTEM_CXX}" >&2; exit 1; }

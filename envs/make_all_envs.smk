@@ -19,7 +19,7 @@ rule capture_kit_finder:
     output: "capture_kit_finder_done.txt"
     shell: "echo 'Running capture_kit_finder' > {output}"
 
-# now not acivily used but looks like this post proccessing for this envioroment can be replaced with  conda install bioconda::gcnvkernel
+# This environment is not currently used, and its post-processing may be replaceable with `conda install bioconda::gcnvkernel`.
 # rule gatk_gcnv:
 #     conda: "../envs/gatk_gcnv.yaml"
 #     output: "gatk_gcnv_done.txt"
